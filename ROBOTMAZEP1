@@ -56,11 +56,11 @@ for i in range(len(state_at)-1):  #qs updated based off where the agent is at
     s_next = state_at[i + 1]
     reward = reward_at[i]
 
-    for move_made in Q[s]:   #keeps track of what move the agent made at s, and corresponding q
-        prevQ = Q[s][move_made]
+    for move_made in Q[state]:   #keeps track of what move the agent made at s, and corresponding q
+        prevQ = Q[state][move_made]
         q_high = max(Q[s_next].values())
         updatedQ = prevQ + beta * (reward + gamma * q_high - prevQ)
-        Q[s][move_made] = updatedQ
+        Q[state][move_made] = updatedQ
 total_rewards = []
 
 for state in range(1, 26):
