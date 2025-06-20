@@ -1,0 +1,67 @@
+import numpy as np
+import random
+import matplotlib.pyplot as plt
+from numpy import empty
+
+grid=np.zeros((5,5),int)
+grid[1:3,1:3]=1; grid[0,0]=10; grid[4,4]=7  #1s represent hole on the grid #7 represents agent path 10 represents end
+#print(grid)                                #4,4 represents the starting point of the grid
+moves={'Up':[1,0],'Down':[-1,0],'Right':[0,1],'Left':[0,-1]} #Up, Down, Right, Left   #initialse the location array incase move chosen at start goes off grid
+beta=0.1
+gamma = 0.9
+
+def move():
+    start = [4, 4]
+    goal = [0, 0]
+    location_array = [start.copy()]    #note keep seperate arrays for tracking the path history of the agent and its current position
+    pos = start.copy()
+    reward_array=[]
+    state_array=[]
+    running_reward=[]
+    while pos !=goal:
+        m_chosen = random.choice(list(moves))
+        m_chosen = moves[m_chosen]
+        newpos=[x+y for x,y in zip(pos,m_chosen)]#summing coords to get running position
+
+        if 0<=newpos[0]<5 and 0<=newpos[1]<5:   #defining bounds on the grid   #define allowed moves rather tha disallowed one
+                pos=newpos                               #if out of bounds, take the last position/ stay there                                             #special case considered for start
+                location_array.append(pos.copy())
+        else:
+            continue   #ignores disallowed rules and continues loop
+        if newpos==[1,1] or newpos==[1,2] or newpos==[2,1] or newpos==[2,2]:
+            reward=-30   #reward system
+        elif pos==goal:
+            reward=100
+        else:
+            reward=-1
+        reward_array.append(reward)
+        state_index = pos[0] * 5 + pos[1] + 1   #why?
+        state_array.append(state_index)
+
+    return state_array, reward_array
+state_at, reward_at =move()
+
+
+QT = []
+Q={}  #initilise Q dictionary
+for state in range(1, 26):
+    Q[state]={}
+    for move_made in moves:
+        initialQ = np.random.normal(120, 3, )
+        Q[state][move_made]=initialQ  #dictionary for past Q values
+        QT.append([state, move_made, initialQ])
+
+for i in range(len(state_at)-1):  #qs updated based off where the agent is at
+    s = state_at[i]    #redefining the state posititons to be used in the qt calc
+    s_next = state_at[i + 1]
+    reward = reward_at[i]
+
+    for move_made in Q[s]:   #keeps track of what move the agent made at s, and corresponding q
+        prevQ = Q[s][move_made]
+        q_high = max(Q[s_next].values())
+        updatedQ = prevQ + beta * (reward + gamma * q_high - prevQ)
+        Q[s][move_made] = updatedQ
+total_rewards = []
+
+for state in range(1, 26):
+    print(f"State {state}: {Q[state]}")
