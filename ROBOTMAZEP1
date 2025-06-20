@@ -1,3 +1,4 @@
+
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -17,7 +18,7 @@ def move():
     pos = start.copy()
     reward_array=[]
     state_array=[]
-    running_reward=[]
+    action_array=[]
     while pos !=goal:
         m_chosen = random.choice(list(moves))
         m_chosen = moves[m_chosen]
@@ -37,9 +38,10 @@ def move():
         reward_array.append(reward)
         state_index = pos[0] * 5 + pos[1] + 1   #why?
         state_array.append(state_index)
+        action_array.append(m_chosen)
 
-    return state_array, reward_array
-state_at, reward_at =move()
+    return state_array, reward_array, action_array
+state_at, reward_at, action_at =move()
 
 
 QT = []
@@ -51,17 +53,30 @@ for state in range(1, 26):
         Q[state][move_made]=initialQ  #dictionary for past Q values
         QT.append([state, move_made, initialQ])
 
-for i in range(len(state_at)-1):  #qs updated based off where the agent is at
-    s = state_at[i]    #redefining the state posititons to be used in the qt calc
-    s_next = state_at[i + 1]
-    reward = reward_at[i]
-
-    for move_made in Q[state]:   #keeps track of what move the agent made at s, and corresponding q
-        prevQ = Q[state][move_made]
-        q_high = max(Q[s_next].values())
-        updatedQ = prevQ + beta * (reward + gamma * q_high - prevQ)
-        Q[state][move_made] = updatedQ
 total_rewards = []
+for episode in range(1000):
+    state_at, reward_at, action_at = move()
+    total_rewards.append(sum(reward_at))
 
-for state in range(1, 26):
-    print(f"State {state}: {Q[state]}")
+    for i in range(len(state_at)-1):  #qs updated based off where the agent is at
+        s = state_at[i]    #redefining the state posititons to be used in the qt calc
+        s_next = state_at[i + 1]
+        reward = reward_at[i]
+
+        for move_made in Q[s]:   #keeps track of what move the agent made at s, and corresponding q
+            prevQ = Q[s][move_made]
+            q_high = max(Q[s_next].values())
+            updatedQ = prevQ + beta * (reward + gamma * q_high - prevQ)
+            Q[s][move_made] = updatedQ
+
+
+    for state in range(1, 26):
+        print(f"State {state}: {Q[state]}")
+
+
+
+
+###program the q value based on what the previous move now wa
+
+
+move()
