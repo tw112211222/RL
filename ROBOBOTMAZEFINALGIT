@@ -12,15 +12,16 @@ gamma = 0.9
 epsilon=0.1
 
 def state_index(pos):
-    return pos[0] * 5 + pos[1] + 1
+    return pos[0] * 5 + pos[1] + 1   #locates the current state
 
-def action_choice(state, Q, epsilon):
+#greedy epsilon policy
+def action_choice(state, Q, epsilon):   #select a random choice if we are exploring the maze
     if random.random() < epsilon:
         return random.choice(list(moves.keys()))
-    else:
-        return max(Q[state], key=Q[state].get)
+    else:                                  #otherwise choose the currently best known path
+        return max(Q[state], key=Q[state].get)   #it is important to describe the action array append as keys so they can be accesed in the epsilon grredy function like so
 
-def move():
+def move():   #defines the associated move for each state of the maze as well as its expected reward
     start = [4, 4]
     goal = [0, 0]
     #note keep seperate arrays for tracking the path history of the agent and its current position
@@ -35,7 +36,7 @@ def move():
 
     while pos !=goal and iters<max_iters:
         current_state=state_index(pos)
-        action_name=action_choice(current_state, Q, epsilon)
+        action_name=action_choice(current_state, Q, epsilon)  #now the move is no longer chosen randomly every time and wil follow epsilon greedy algo
         action= moves[action_name]  #action taken at each step now described in a vector
 
         newpos= [pos[0] + action[0], pos[1] + action[1]]
@@ -58,7 +59,8 @@ def move():
 
         iters +=1
 
-    return state_array, action_array, reward_array
+    return state_array, action_array, reward_array   #action array is stored as a vector of keys as discussed in line 22
+
 
 
 
@@ -83,7 +85,7 @@ for episode in range(1000):
         r = reward_at[i]
 
         # Q-learning update rule
-        old_q = Q[s][a]
+        old_q = Q[s][a]     #use of 'a' means we are only updating the move acc chosen at s and not every possible move which could be made at s (which was how it was before)
         max_next_q = max(Q[s_next].values())
         new_q = old_q + beta * (r + gamma * max_next_q - old_q)  #this formula is similar to stochastic?
         Q[s][a] = new_q  #updates the old state as the now new state
@@ -92,6 +94,7 @@ for episode in range(1000):
     if episode % 100 == 0:
         epsilon = max(0.01, epsilon * 0.95)
         print(f"Episode {episode}, Avg Reward: {np.mean(total_rewards[-100:]):.2f}, Epsilon: {epsilon:.3f}")
+
 
 # Analysis
         print("\n=== LEARNING ANALYSIS ===")
