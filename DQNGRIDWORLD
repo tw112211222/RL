@@ -48,7 +48,7 @@ class ReplayBuffer:  #stores previos run to train q value estimates
 gamma = 0.98
 epsilon = 0.1
 epsilon_min=0.01
-#decay=0.995
+decay=0.995
 lr = 5e-4
 batch_size = 128
 target_update = 10
@@ -70,7 +70,7 @@ def select_action(state):   #epsilon greedy principle
     else:
         with torch.no_grad():
             return policy_net(torch.tensor(state).unsqueeze(0)).argmax().item()
-#epsilon = max(epsilon_min, epsilon * decay)
+
 
 def step(pos, action_index):
     action = moves[index_to_action[action_index]]
@@ -124,5 +124,6 @@ for ep in range(episodes):  #play game
 
     if ep % target_update == 0:
         target_net.load_state_dict(policy_net.state_dict())
+        epsilon = max(epsilon_min, epsilon * decay)
 
     print(f"Episode {ep}, Total Reward: {total_reward}")
